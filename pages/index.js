@@ -7,7 +7,8 @@ export default function Home() {
   const colors = ["#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999"]
   
   const [people, setPeople] = useState(['Ben', 'Jerry', 'Sam', 'Tester', 'FoodieVeryLongName']);
-  
+  const [chosen, setChosen] = useState(['', 0]);
+
   const interval = (number) => (2 * Math.PI) / number;
   const angles = (number) => {
     const array = Array.from(Array(number).keys()).map((index) => {
@@ -21,19 +22,13 @@ export default function Home() {
   const y = (t) => 250 * Math.cos(t);
   const x = (t) => 250 * Math.sin(t);
 
-  const shuffle = () => {
-    // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
-    const dup = [...people];
-    let index = dup.length;
-    while (index) {
-      const j = Math.floor(Math.random() * index--);
+  const getWinner = () => {
+    const winnerIndex = Math.floor(Math.random() * people.length)
+    const [min, max] = angles(people.length)[winnerIndex]
+    const randomWinnerAngle = Math.random() * (max - min) + min;
+    const winner = people[winnerIndex]
 
-      const temp = dup[j]
-      dup[j] = dup[index]
-      dup[index] = temp
-    }
-
-    setPeople(dup);
+    setChosen([winner, randomWinnerAngle])
   }
 
   return (
@@ -66,7 +61,8 @@ export default function Home() {
             )}
           </g>
         </svg>
-        <button onClick={shuffle}>Spin</button>
+        {chosen}
+        <button onClick={getWinner}>Spin</button>
       </main>
 
       <footer className={styles.footer}>
