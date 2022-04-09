@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 
 export default function Home() {
@@ -22,8 +21,9 @@ export default function Home() {
 
   const y = (t) => 250 * Math.cos(t);
   const x = (t) => 250 * Math.sin(t);
-  const colors = ["#0074D9", "#FF4136", "#2ECC40", "#FF851B", "#7FDBFF", "#B10DC9", "#FFDC00", "#001f3f", "#39CCCC", "#01FF70", "#85144b", "#F012BE", "#3D9970", "#111111", "#AAAAAA"]
-  const people = ['Ben', 'Jerry', 'Sam']
+  // Okabe & Ito
+  const colors = ["#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999"]
+  const people = ['Ben', 'Jerry', 'Sam', 'Tester', 'FoodieVeryLongName']
 
   return (
     <div className={styles.container}>
@@ -35,19 +35,22 @@ export default function Home() {
 
       <main className={styles.main}>
         <svg height="500" width="500">
-          <defs>
-            <clipPath id="circle">
-              <circle cx="0" cy="0" r="240" />
-            </clipPath>
-          </defs>
-          <g transform="matrix(1 0 0 -1 250 250)">
+          <g transform="matrix(1 0 0 1 250 250)">
             <circle cx="0" cy="0" r="240" stroke="black" fill="white" />
-            {angles(people.length).map((angle, index) => 
+            {angles(people.length).map((angle, index) =>
               <>
-                <path 
-                  key={index}
+                <path
                   d={`M0 0 L${x(angle[0])} ${y(angle[0])} A250 250 0 0 0 ${x(angle[1])} ${y(angle[1])} Z`}
-                  fill={colors[index]} clipPath="url(#circle)" />
+                  fill={colors[index % colors.length]} />
+                <path
+                  id={`path-${index}`}
+                  d={`M${x(angle[0])} ${y(angle[0])} A250 250 0 0 0 ${x(angle[1])} ${y(angle[1])}`}
+                  fill="none" />
+                <text dy={-10} textAnchor="middle">
+                  <textPath href={`#path-${index}`} startOffset="50%" dominantBaseline="text-after-edge">
+                    {people[index]}
+                  </textPath>
+                </text>
               </>
             )}
           </g>
