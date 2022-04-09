@@ -15,7 +15,6 @@ export default function Home() {
       return [index * interval(number), (index + 1) * interval(number)]
     });
 
-    array[array.length - 1][1] = 0;
     return array;
   }
 
@@ -25,7 +24,7 @@ export default function Home() {
   const getWinner = () => {
     const winnerIndex = Math.floor(Math.random() * people.length)
     const [min, max] = angles(people.length)[winnerIndex]
-    const randomWinnerAngle = Math.random() * (max - min) + min;
+    const randomWinnerAngle = (Math.random() * (max - min) + min) * 180 / Math.PI + 180
     const winner = people[winnerIndex]
 
     setChosen([winner, randomWinnerAngle])
@@ -41,7 +40,7 @@ export default function Home() {
 
       <main className={styles.main}>
         <svg height="500" width="500">
-          <g transform="matrix(1 0 0 1 250 250)">
+          <g transform={`matrix(1 0 0 1 250 250) rotate(${chosen[1]})`}>
             <circle cx="0" cy="0" r="240" stroke="black" fill="white" />
             {angles(people.length).map((angle, index) =>
               <>
