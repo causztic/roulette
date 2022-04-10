@@ -1,18 +1,24 @@
+import type { NextPage } from 'next'
 import Head from 'next/head'
-import { useState, useEffect, useRef, Fragment } from 'react'
-import { Slice } from '../components/Slice';
 import styles from '../styles/Home.module.css'
+import { useState, useEffect, useRef, MutableRefObject } from 'react'
+import { Slice } from '../components/Slice';
+import { Person } from '../types/person'
 
-export default function Home() {
-  const roulette = useRef();
+const Home: NextPage = () => {
+  const roulette = useRef<SVGGElement>(null);
   const [currentPerson, setCurrentPerson] = useState('');
-  const [people, setPeople] = useState(['test']);
-  const [chosen, setChosen] = useState(['', 0]);
+  const [people, setPeople] = useState<string[]>([]);
+  const [chosen, setChosen] = useState<Person>();
 
-  const interval = (number) => (2 * Math.PI) / number;
-  const slices = (number) => {
+  const interval = (number: number) => (2 * Math.PI) / number;
+  const slices = (number: number): Person[] => {
     const array = Array.from(Array(number).keys()).map((index) => {
-      return [people[index], index * interval(number), (index + 1) * interval(number)]
+      return {
+        name: people[index],
+        minAngle: index * interval(number),
+        maxAngle: (index + 1) * interval(number)
+      }
     });
 
     return array;
@@ -20,14 +26,14 @@ export default function Home() {
 
   const getWinner = () => {
     const winnerIndex = Math.floor(Math.random() * people.length)
-    const [min, max] = slices(people.length)[winnerIndex]
-    const randomWinnerAngle = (Math.random() * (max - min) + min) * 180 / Math.PI + 180
-    const winner = people[winnerIndex]
+    const { name, minAngle: min, maxAngle: max } = slices(people.length)[winnerIndex]
+    const angle = (Math.random() * (max - min) + min) * 180 / Math.PI + 180
+    const winner = { name, minAngle: angle, maxAngle: angle }
 
-    setChosen([winner, randomWinnerAngle])
+    setChosen(winner)
   }
 
-  const handleAddPerson = (event) => {
+  const handleAddPerson = (event: KeyboardEvent) => {
     if (event.key.length === 1) {
       setCurrentPerson(person => `${person}${event.key}`)
     }
@@ -39,19 +45,20 @@ export default function Home() {
   }
 
   const finishSpinning = () => {
-    roulette.current.style.transform = `rotate(${chosen[1]}deg)`;
-    roulette.current.classList.remove(styles.rotating);
+    if (roulette.current) {
+      roulette.current.style.transform = `rotate(${chosen?.maxAngle}deg)`;
+      roulette.current.classList.remove(styles.rotating);
+    }
   }
 
   useEffect(() => {
-    if (chosen[0] !== '') {
-      roulette.current.style.transform = `rotate(${360 * 10 + chosen[1]}deg)`;
+    if (roulette.current && chosen !== undefined) {
+      roulette.current.style.transform = `rotate(${360 * 10 + chosen.maxAngle}deg)`;
       roulette.current.classList.add(styles.rotating);
     }
   }, [chosen])
 
   useEffect(() => {
-    // TODO: remove event listener
     window.addEventListener('keydown', handleAddPerson)
 
     return () => window.removeEventListener('keydown', handleAddPerson)
@@ -75,7 +82,7 @@ export default function Home() {
               )}
             </g>
           </g>
-          <path d="M240 0 L250 30 L260 0 Z" fill="black" />          
+          <path d="M240 0 L250 30 L260 0 Z" fill="black" />
         </svg>
         <button onClick={getWinner}>Spin</button>
       </main>
@@ -85,3 +92,5 @@ export default function Home() {
     </div>
   )
 }
+
+export default Home
