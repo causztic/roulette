@@ -14,7 +14,7 @@ export const Slice = ({ index, person }: { index: number, person: Person }) => {
         fill={colorFor(index)} />
       <path
         id={`path-${index}`}
-        d={Math.PI < average ? `M${x(average)} ${y(average)} L0 0` : `M0 0 L${x(average)} ${y(average)}`}
+        d={`M0 0 L${x(average)} ${y(average)}`}
         fill="none" />
       <text textAnchor="middle">
         <textPath href={`#path-${index}`} startOffset="50%" dominantBaseline="middle" fontSize={20}>
