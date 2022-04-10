@@ -7,7 +7,7 @@ export default function Home() {
   // Okabe & Ito
   const colors = ["#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999"]
 
-  const [people, setPeople] = useState(['Ben', 'Jerry', 'Sam', 'Tester', 'FoodieVeryLongName']);
+  const [people, setPeople] = useState(['Ben', 'Jerry', 'Sam', 'Tester', 'Potato', 'Daryl']);
   const [chosen, setChosen] = useState(['', 0]);
 
   const interval = (number) => (2 * Math.PI) / number;
@@ -38,6 +38,11 @@ export default function Home() {
     }
   }, [chosen])
 
+  const finishSpinning = () => {
+    roulette.current.style.transform = `rotate(${chosen[1]}deg)`;
+    roulette.current.classList.remove(styles.rotating);
+  }
+
   return (
     <div className={styles.container}>
       <Head>
@@ -50,7 +55,7 @@ export default function Home() {
         <svg height="550" width="500">
           <g transform="matrix(1 0 0 1 250 275)">
             <circle cx="0" cy="0" r="240" stroke="black" fill="white" />
-            <g ref={roulette}>
+            <g ref={roulette} onTransitionEnd={finishSpinning}>
               {angles(people.length).map((angle, index) =>
                 <Fragment key={index}>
                   <path
@@ -71,7 +76,6 @@ export default function Home() {
           </g>
           <path d="M225 0 L240 30 L255 0 Z" fill="black" />          
         </svg>
-        {chosen}
         <button onClick={getWinner}>Spin</button>
       </main>
 

@@ -109,7 +109,7 @@
 }
 
 .rotating {
-  transition: transform 10s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media (max-width: 600px) {
