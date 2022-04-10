@@ -10,6 +10,7 @@ const Home: NextPage = () => {
   const [currentPerson, setCurrentPerson] = useState('');
   const [people, setPeople] = useState<string[]>([]);
   const [chosen, setChosen] = useState<Person>();
+  const [showChosen, setShowChosen] = useState<boolean>(false);
 
   const interval = (number: number) => (2 * Math.PI) / number;
   const slices = (number: number): Person[] => {
@@ -25,6 +26,7 @@ const Home: NextPage = () => {
   }
 
   const getWinner = () => {
+    setShowChosen(false)
     const winnerIndex = Math.floor(Math.random() * people.length)
     const { name, minAngle: min, maxAngle: max } = slices(people.length)[winnerIndex]
     const angle = (Math.random() * (max - min) + min) * 180 / Math.PI + 180
@@ -48,6 +50,7 @@ const Home: NextPage = () => {
     if (roulette.current) {
       roulette.current.style.transform = `rotate(${chosen?.maxAngle}deg)`;
       roulette.current.classList.remove(styles.rotating);
+      setShowChosen(true)
     }
   }
 
@@ -73,6 +76,7 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
+        <h1 style={{ height: '100px' }}>{showChosen && chosen?.name}</h1>
         <svg height="550" width="500">
           <g transform="matrix(1 0 0 1 250 275)">
             <circle cx="0" cy="0" r="245" fill="white" />
