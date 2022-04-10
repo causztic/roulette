@@ -1,11 +1,12 @@
 import Head from 'next/head'
-import { useState } from 'react'
+import { useState, useEffect, useRef, Fragment } from 'react'
 import styles from '../styles/Home.module.css'
 
 export default function Home() {
+  const roulette = useRef();
   // Okabe & Ito
   const colors = ["#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999"]
-  
+
   const [people, setPeople] = useState(['Ben', 'Jerry', 'Sam', 'Tester', 'FoodieVeryLongName']);
   const [chosen, setChosen] = useState(['', 0]);
 
@@ -30,6 +31,13 @@ export default function Home() {
     setChosen([winner, randomWinnerAngle])
   }
 
+  useEffect(() => {
+    if (chosen[0] !== '') {
+      roulette.current.style.transform = `rotate(${360 * 10 + chosen[1]}deg)`;
+      roulette.current.classList.add(styles.rotating);
+    }
+  }, [chosen])
+
   return (
     <div className={styles.container}>
       <Head>
@@ -39,26 +47,29 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        <svg height="500" width="500">
-          <g transform={`matrix(1 0 0 1 250 250) rotate(${chosen[1]})`}>
+        <svg height="550" width="500">
+          <g transform="matrix(1 0 0 1 250 275)">
             <circle cx="0" cy="0" r="240" stroke="black" fill="white" />
-            {angles(people.length).map((angle, index) =>
-              <>
-                <path
-                  d={`M0 0 L${x(angle[0])} ${y(angle[0])} A250 250 0 0 0 ${x(angle[1])} ${y(angle[1])} Z`}
-                  fill={colors[index % colors.length]} />
-                <path
-                  id={`path-${index}`}
-                  d={`M${x(angle[0])} ${y(angle[0])} A250 250 0 0 0 ${x(angle[1])} ${y(angle[1])}`}
-                  fill="none" />
-                <text dy={-10} textAnchor="middle">
-                  <textPath href={`#path-${index}`} startOffset="50%" dominantBaseline="text-after-edge">
-                    {people[index]}
-                  </textPath>
-                </text>
-              </>
-            )}
+            <g ref={roulette}>
+              {angles(people.length).map((angle, index) =>
+                <Fragment key={index}>
+                  <path
+                    d={`M0 0 L${x(angle[0])} ${y(angle[0])} A250 250 0 0 0 ${x(angle[1])} ${y(angle[1])} Z`}
+                    fill={colors[index % colors.length]} />
+                  <path
+                    id={`path-${index}`}
+                    d={`M${x(angle[0])} ${y(angle[0])} A250 250 0 0 0 ${x(angle[1])} ${y(angle[1])}`}
+                    fill="none" />
+                  <text dy={-10} textAnchor="middle">
+                    <textPath href={`#path-${index}`} startOffset="50%" dominantBaseline="text-after-edge">
+                      {people[index]}
+                    </textPath>
+                  </text>
+                </Fragment>
+              )}
+            </g>
           </g>
+          <path d="M225 0 L240 30 L255 0 Z" fill="black" />          
         </svg>
         {chosen}
         <button onClick={getWinner}>Spin</button>
