@@ -1,17 +1,19 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
-import { useState, useEffect, useRef, MutableRefObject } from 'react'
+import { useState, useEffect, useRef, KeyboardEvent } from 'react'
 import { Slice } from '../components/Slice';
 import { Person } from '../types/person'
 import { colorFor } from '../components/colors';
 
 const Home: NextPage = () => {
   const roulette = useRef<SVGGElement>(null);
+  const input = useRef<HTMLInputElement>(null);
   const [currentPerson, setCurrentPerson] = useState('');
   const [people, setPeople] = useState<string[]>([]);
   const [chosen, setChosen] = useState<Person>();
   const [showChosen, setShowChosen] = useState<boolean>(false);
+  const [spinning, setSpinning] = useState<boolean>(false);
 
   const interval = (number: number) => (2 * Math.PI) / number;
   const slices = (number: number): Person[] => {
@@ -26,7 +28,8 @@ const Home: NextPage = () => {
     return array;
   }
 
-  const getWinner = () => {
+  const startSpinning = () => {
+    setSpinning(true)
     setShowChosen(false)
     const winnerIndex = Math.floor(Math.random() * people.length)
     const { name, minAngle: min, maxAngle: max } = slices(people.length)[winnerIndex]
@@ -36,19 +39,15 @@ const Home: NextPage = () => {
     setChosen(winner)
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const handleAddPerson = (event: KeyboardEvent) => {
-    if (event.key.length === 1) {
-      setCurrentPerson(person => `${person}${event.key}`)
-    } else if (event.key === 'Enter') {
+  const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' && currentPerson.length > 1) {
       setPeople(previousList => [...previousList, currentPerson])
       setCurrentPerson('')
-    } else if (event.key === 'Backspace') {
-      setCurrentPerson(person => person.slice(0, person.length - 1))
     }
   }
 
   const finishSpinning = () => {
+    setSpinning(false)
     if (roulette.current) {
       roulette.current.style.transform = `rotate(${chosen?.maxAngle}deg)`;
       roulette.current.classList.remove(styles.rotating);
@@ -66,6 +65,7 @@ const Home: NextPage = () => {
     setShowChosen(true)
     localStorage.clear();
     setPeople([]);
+    input?.current?.focus();
   }
 
   useEffect(() => {
@@ -80,28 +80,24 @@ const Home: NextPage = () => {
     if (people) {
       setPeople(people.split('|'))
     }
+
+    input?.current?.focus();
   }, [])
-
-  useEffect(() => {
-    window.addEventListener('keydown', handleAddPerson)
-
-    return () => window.removeEventListener('keydown', handleAddPerson)
-  }, [handleAddPerson])
 
   useEffect(() => {
     localStorage.setItem('people', people.join('|'))
   }, [people])
 
   return (
-    <div className={styles.container}>
+    <>
       <Head>
         <title>Roulette</title>
         <meta name="description" content="" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
-        <h1 style={{ height: '100px' }}>{showChosen && chosen?.name}</h1>
+      <main className="flex flex-col justify-center items-center">
+        <h1 className="h-24 text-8xl dark:text-white">{showChosen && chosen?.name}</h1>
         <svg height="550" width="500">
           <g transform="matrix(1 0 0 1 250 275)">
             <circle cx="0" cy="0" r="245" fill={colorFor(0)} />
@@ -111,15 +107,15 @@ const Home: NextPage = () => {
               )}
             </g>
           </g>
-          <path d="M240 0 L250 30 L260 0 Z" fill="black" />
+          <path d="M240 0 L250 30 L260 0 Z" fill="darkgray" stroke="black" />
         </svg>
-        {people.length > 1 && <button onClick={getWinner}>Spin</button>}
-        {people.length > 0 && <button onClick={reset}>Reset</button>}
+        <div className="w-64">
+          <input disabled={spinning} ref={input} className="w-full mb-2 p-2 rounded border-2 border-gray-400" type="text" autoFocus={true} value={currentPerson} onChange={(e) => setCurrentPerson(e.target.value)} onKeyDown={onKeyDown}></input>
+          <button onClick={startSpinning} disabled={people.length < 2} className="disabled:bg-gray-100 disabled:text-gray-400 rounded bg-sky-100 hover:bg-sky-300 w-full p-2 text-4xl mb-2">Spin</button>
+          <button onClick={reset} disabled={people.length === 0} className="disabled:bg-gray-100 disabled:text-gray-400 rounded bg-red-100 hover:bg-red-300 w-full">Reset</button>
+        </div>
       </main>
-
-      <footer className={styles.footer}>
-      </footer>
-    </div>
+    </>
   )
 }
 
