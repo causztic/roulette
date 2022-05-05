@@ -57,13 +57,16 @@ const Home: NextPage = () => {
     }
   };
 
-  const reset = () => {
-    setChosen(undefined);
+  const resetRoulette = () => {
     if (roulette.current) {
       roulette.current.style.transform = 'rotate(0deg)';
       roulette.current.classList.remove(styles.rotating);
     }
+  };
 
+  const reset = () => {
+    setChosen(undefined);
+    resetRoulette();
     setShowChosen(true);
     localStorage.clear();
     setPeople([]);
@@ -74,7 +77,7 @@ const Home: NextPage = () => {
     if (matches) {
       setDimensions({ height: 350, width: 350 });
     } else {
-      setDimensions({ height: 500, width: 500 });
+      setDimensions({ height: 450, width: 450 });
     }
   };
 
@@ -106,6 +109,16 @@ const Home: NextPage = () => {
     return () => query.removeEventListener("change", setSVGDimensions);
   }, []);
 
+  const deletePerson = (index: number) => {
+    if (!spinning) {
+      const tempPeople = [...people];
+      tempPeople.splice(index, 1);
+      setPeople(tempPeople);
+
+      setChosen(undefined);
+    }
+  };
+
   return (
     <>
       <Head>
@@ -121,16 +134,17 @@ const Home: NextPage = () => {
             <circle cx="0" cy="0" r={radius - 5} fill={colorFor(0)} />
             <g ref={roulette} onTransitionEnd={finishSpinning}>
               {slices(people.length).map((slice, index) =>
-                <Slice key={index} person={slice} index={index} radius={radius} />
+                <Slice deletePerson={() => deletePerson(index)} key={index} person={slice} index={index} radius={radius} />
               )}
             </g>
           </g>
           <path d={`M${radius - 10} 0 L${radius} 30 L${radius + 10} 0 Z`} fill="darkgray" stroke="black" />
         </svg>
-        <div className="w-64 mb-2">
+        <div className="flex flex-col w-64 mb-2 items-center">
           <input disabled={spinning} ref={input} className="w-full mb-2 p-2 rounded border-2 border-gray-400" type="text" autoFocus={true} value={currentPerson} onChange={(e) => setCurrentPerson(e.target.value)} onKeyDown={onKeyDown}></input>
           <button onClick={startSpinning} disabled={people.length < 2} className="disabled:bg-gray-100 disabled:text-gray-400 rounded bg-sky-100 hover:bg-sky-300 w-full p-2 my-2 text-4xl">Spin</button>
           <button onClick={reset} disabled={people.length === 0} className="disabled:bg-gray-100 disabled:text-gray-400 rounded bg-red-100 hover:bg-red-300 w-full my-2">Reset</button>
+          <small className="dark:text-white">Right click on an entry to remove</small>
         </div>
       </main>
     </>
