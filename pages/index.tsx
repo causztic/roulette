@@ -74,7 +74,7 @@ const Home: NextPage = () => {
     if (matches) {
       setDimensions({ height: 350, width: 350 });
     } else {
-      setDimensions({ height: 500, width: 500 });
+      setDimensions({ height: 450, width: 450 });
     }
   };
 
