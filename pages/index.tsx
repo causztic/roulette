@@ -14,7 +14,7 @@ const Home: NextPage = () => {
   const [chosen, setChosen] = useState<Person>();
   const [showChosen, setShowChosen] = useState<boolean>(false);
   const [spinning, setSpinning] = useState<boolean>(false);
-  const [{ height, width }, setDimensions] = useState<{ height: number, width: number }>({ height: 500, width: 500 });
+  const [{ height, width }, setDimensions] = useState<{ height: number, width: number }>({ height: 450, width: 450 });
   const radius = width / 2;
 
   const interval = (number: number) => (2 * Math.PI) / number;
